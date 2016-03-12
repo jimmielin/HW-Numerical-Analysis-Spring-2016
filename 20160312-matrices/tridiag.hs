@@ -4,7 +4,7 @@ import Data.Matrix
 solvetri :: (RealFloat a) => Matrix a                 -- ^ the tridiagonal metrix m
                           -> Matrix a                 -- ^ the column-vector matrix d
                           -> Matrix a                 -- ^ returns the solution for the linear equation system MX `eq` d
-solvetri m d = fromList (nrows m) 1 $ foldr (\x acc -> ((ds ! (nrows m - length acc, 1)) - (ms ! (nrows m - length acc, nrows m - length acc + 1)) * (last acc)):acc) [ds ! (nrows m, 1)] [1..(nrows m - 1)] where
+solvetri m d = fromList (nrows m) 1 $ foldr (\x acc -> ((ds ! (nrows m - length acc, 1)) - (ms ! (nrows m - length acc, nrows m - length acc + 1)) * (head acc)):acc) [ds ! (nrows m, 1)] [1..(nrows m - 1)] where
     (ms, ds) = thomastransform m d
 
 thomastransform :: (RealFloat a) => Matrix a -> Matrix a -> (Matrix a, Matrix a)

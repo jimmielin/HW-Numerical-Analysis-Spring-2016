@@ -4,7 +4,7 @@ import Data.Matrix
 solvetri :: (RealFloat a) => Matrix a                 -- ^ the tridiagonal metrix m
                           -> Matrix a                 -- ^ the column-vector matrix d
                           -> Matrix a                 -- ^ returns the solution for the linear equation system MX `eq` d
-solvetri m d = fromList (nrows m) 1 $ foldr (\x acc -> ((ds ! (nrows m - length acc, 1)) - (ms ! (nrows m - length acc, nrows m - length acc + 1)) * (last acc)):acc) [ds ! (nrows m, 1)] [1..(nrows m - 1)] where
+solvetri m d = fromList (nrows m) 1 $ foldr (\x acc -> ((ds ! (nrows m - length acc, 1)) - (ms ! (nrows m - length acc, nrows m - length acc + 1)) * (head acc)):acc) [ds ! (nrows m, 1)] [1..(nrows m - 1)] where
     (ms, ds) = thomastransform m d
 
 thomastransform :: (RealFloat a) => Matrix a -> Matrix a -> (Matrix a, Matrix a)
@@ -70,11 +70,18 @@ genEqns xs ys = (matrix (length ys) (length ys) (\(x, y) -> if x == y then 2 els
     lds = genLd hs
     mus = genMu lds hs ys
 
-genPoly :: (RealFloat a) => [a]                     -- ^ The list of x coordinates
-                         -> [a]                     -- ^ The corresponding list of the y coordinates
-                         -> (a -> a)                -- ^ The corresponding 3-order spline polynomial in natural restriction
+genPoly :: (RealFloat a) => [a]                 -- ^ The list of x coordinates
+                         -> [a]                 -- ^ The corresponding list of the y coordinates
+                         -> (a -> a)            -- ^ The corresponding 3-order spline polynomial in natural restriction
 genPoly xs ys = (\x -> sum $ foldl (\acc y -> (ys !! length acc) * (ah (length acc) (xsf !! (length acc - 1)) (xsf !! length acc) (xsf !! (length acc + 1)) n x) + (ms !! length acc) * (bh (length acc) (xsf !! (length acc - 1)) (xsf !! length acc) (xsf !! (length acc + 1)) n x) : acc) [] ms) where
     xsf  = 0 : xs ++ [0] -- for safety; two zeroes not actually used
     n    = length ys
     eqns = genEqns xs ys
     ms   = toList $ solvetri (fst eqns) (snd eqns)
+
+-- runge specific (serves as an example I guess?)
+runge :: (RealFloat a) => a -> a
+runge x = 1/(1+x*x)
+
+poly :: Double -> Double
+poly = genPoly [-5..5] $ fmap runge [-5..5]
