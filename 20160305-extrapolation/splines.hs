@@ -1,9 +1,9 @@
 import Data.Matrix
 
--- Tridiagonal matrix algorithm (Thomas algorithm) implementation
--- Given a tridiagonal matrix m, and a column-vector matrix d, solves the linear equation system mX=d for column-vector matrix X.
-
-solvetri :: (RealFloat a) => Matrix a -> Matrix a -> Matrix a
+-- |Tridiagonal matrix algorithm (Thomas algorithm) implementation
+solvetri :: (RealFloat a) => Matrix a                 -- ^ the tridiagonal metrix m
+                          -> Matrix a                 -- ^ the column-vector matrix d
+                          -> Matrix a                 -- ^ returns the solution for the linear equation system MX `eq` d
 solvetri m d = fromList (nrows m) 1 $ foldr (\x acc -> ((ds ! (nrows m - length acc, 1)) - (ms ! (nrows m - length acc, nrows m - length acc + 1)) * (last acc)):acc) [ds ! (nrows m, 1)] [1..(nrows m - 1)] where
     (ms, ds) = thomastransform m d
 
@@ -17,7 +17,7 @@ thomastransform_intc m  1 r = thomastransform_intc (setElem ((m ! (1, 2)) / (m !
 thomastransform_intc ms n r = thomastransform_intc (setElem ((ms ! (n, n+1)) / (ms ! (n, n) - ms ! (n, n-1) * ms ! (n-1, n))) (n, n+1) ms) (n + 1) (r - 1)
 
 thomastransform_intd :: (RealFloat a) => Matrix a -> Matrix a -> Int -> Int -> Matrix a
-thomastransform_intd ms ds n 0 = ds
+thomastransform_intd ms ds n (-1) = ds
 thomastransform_intd ms d  1 r = thomastransform_intd ms (setElem ((d ! (1, 1)) / (ms ! (1, 1))) (1, 1) d) 2 $ r - 1
 thomastransform_intd ms ds n r = thomastransform_intd ms (setElem ((ds ! (n, 1) - (ms ! (n, n-1)) * (ds ! (n - 1, 1))) / (ms ! (n, n) - (ms ! (n, n - 1)) * (ms ! (n - 1, n)))) (n, 1) ds) (n + 1) $ r - 1
 
@@ -34,22 +34,25 @@ bleft  a b x = (x-a)*((x-b)/(a-b))^2
 bright :: (RealFloat a) => a -> a -> a -> a
 bright a b x = (x-b)*((x-a)/(a-b))^2
 
-ah :: (RealFloat a) => Int -> a -> a -> a -> a -> a -> a
+ah :: (RealFloat a) => Int -> a -> a -> a -> Int -> a -> a
 ah i a b c n x
-    | i == 0 =    if x < a then 0 else (if x < b then aleft a b x else 0)
-    | x < a =     0
-    | x < b =     aright a b x
-    | x < c =     aleft  b c x
+    | i == 0 =    if x < b then 0 else (if x < c then aleft a b x else 0)
+    | i == n =    if x < a then 0 else (if x <= b then aright a b x else 0)
+    | x < a  =    0
+    | x < b  =    aright a b x
+    | x < c  =    aleft  b c x
     | otherwise = 0
 
-bh :: (RealFloat a) => Int -> a -> a -> a -> a -> a -> a
+bh :: (RealFloat a) => Int -> a -> a -> a -> Int -> a -> a
 bh i a b c n x
-    | i == 0 =    if x < a then 0 else (if x < b then bleft a b x else 0)
-    | x < a =     0
-    | x < b =     bright a b x
-    | x < c =     bleft  b c x
+    | i == 0 =    if x < b then 0 else (if x < c then bleft a b x else 0)
+    | i == n =    if x < a then 0 else (if x <= b then bright a b x else 0)
+    | x < a  =    0
+    | x < b  =    bright a b x
+    | x < c  =    bleft  b c x
     | otherwise = 0
 
+-- generator functions
 genLd :: (RealFloat a) => [a] -> [a]
 genLd hs = reverse $ 0 : tail (foldl (\acc x -> ((hs !! (length acc - 1)) / ((hs !! (length acc - 1)) + x)) : acc) [1] hs)
 
@@ -59,8 +62,19 @@ genH xs = foldr (\x acc -> if length acc + 1 < length xs then (x - (xs !! (lengt
 genMu :: (RealFloat a) => [a] -> [a] -> [a] -> [a]
 genMu lds hs ys = (3*(ys !! 1 - ys !! 0) / hs !! 0) : (foldl (\acc x -> 3*( (1 - x)/(hs !! (length acc - 1))*(ys !! length acc - ys !! (length acc - 1)) + x / (hs !! length acc) * (ys !! (length acc + 1) - ys !! length acc)) : acc) [3*(last ys - last (init ys)) / last hs] (init (tail lds)))
 
-genEqns :: (RealFloat a) => [a] -> [a] -> (Matrix a, Matrix a)
-genEqns xs ys = (matrix (length ys) (length ys) (\(x, y) -> 1), fromList (length ys) 1 mus) where -- stub
+genEqns :: (RealFloat a) => [a]                     -- ^ The list of x coordinates
+                         -> [a]                     -- ^ The corresponding list of the y coordinates
+                         -> (Matrix a, Matrix a)    -- ^ The tuple (M, D) for the system of equations Mx `eq` D
+genEqns xs ys = (matrix (length ys) (length ys) (\(x, y) -> if x == y then 2 else (if y == x + 1 then lds !! (x - 1) else (if y == x - 1 then 1 - lds !! (x - 1) else 0))), fromList (length ys) 1 mus) where -- stub
     hs  = genH  xs
     lds = genLd hs
     mus = genMu lds hs ys
+
+genPoly :: (RealFloat a) => [a]                     -- ^ The list of x coordinates
+                         -> [a]                     -- ^ The corresponding list of the y coordinates
+                         -> (a -> a)                -- ^ The corresponding 3-order spline polynomial in natural restriction
+genPoly xs ys = (\x -> sum $ foldl (\acc y -> (ys !! length acc) * (ah (length acc) (xsf !! (length acc - 1)) (xsf !! length acc) (xsf !! (length acc + 1)) n x) + (ms !! length acc) * (bh (length acc) (xsf !! (length acc - 1)) (xsf !! length acc) (xsf !! (length acc + 1)) n x) : acc) [] ms) where
+    xsf  = 0 : xs ++ [0] -- for safety; two zeroes not actually used
+    n    = length ys
+    eqns = genEqns xs ys
+    ms   = toList $ solvetri (fst eqns) (snd eqns)
