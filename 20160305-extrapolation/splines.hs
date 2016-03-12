@@ -34,6 +34,7 @@ bleft  a b x = (x-a)*((x-b)/(a-b))^2
 bright :: (RealFloat a) => a -> a -> a -> a
 bright a b x = (x-b)*((x-a)/(a-b))^2
 
+{--
 ah :: (RealFloat a) => Int -> a -> a -> a -> Int -> a -> a
 ah i a b c n x
     | i == 0 =    if x < b then 0 else (if x < c then aleft a b x else 0)
@@ -51,6 +52,20 @@ bh i a b c n x
     | x < b  =    bright a b x
     | x < c  =    bleft  b c x
     | otherwise = 0
+--}
+
+-- alternate implementations for ah, bh as the above seem buggy
+ah' :: (RealFloat a) => Int -> Int -> [a] -> a -> a
+ah' i n xs x
+    | i == 0 = if x < xs !! 0 then 0 else (if x <= xs !! 1 then aleft (xs !! 0) (xs !! 1) x else 0)
+    | i == n = if x < xs !! (n - 1) then 0 else (if x <= xs !! n then aright (xs !! (n-1)) (xs !! n) x else 0)
+    | otherwise = if x < (xs !! (i - 1)) then 0 else (if x <= (xs !! i) then aright (xs !! (i - 1)) (xs !! i) x else (if x <= (xs !! i + 1) then aleft (xs !! i) (xs !! (i + 1)) x else 0))
+
+bh' :: (RealFloat a) => Int -> Int -> [a] -> a -> a
+bh' i n xs x
+    | i == 0 = if x < xs !! 0 then 0 else if x <= xs !! 1 then bleft (xs !! 0) (xs !! 1) x else 0
+    | i == n = if x < xs !! (n - 1) then 0 else if x <= xs !! n then bright (xs !! (n-1)) (xs !! n) x else 0
+    | otherwise = if x < (xs !! (i - 1)) then 0 else if x <= (xs !! i) then bright (xs !! (i - 1)) (xs !! i) x else if x <= (xs !! i + 1) then bleft (xs !! i) (xs !! (i + 1)) x else 0
 
 -- generator functions
 genLd :: (RealFloat a) => [a] -> [a]
@@ -73,11 +88,23 @@ genEqns xs ys = (matrix (length ys) (length ys) (\(x, y) -> if x == y then 2 els
 genPoly :: (RealFloat a) => [a]                 -- ^ The list of x coordinates
                          -> [a]                 -- ^ The corresponding list of the y coordinates
                          -> (a -> a)            -- ^ The corresponding 3-order spline polynomial in natural restriction
-genPoly xs ys = (\x -> sum $ foldl (\acc y -> (ys !! length acc) * (ah (length acc) (xsf !! (length acc - 1)) (xsf !! length acc) (xsf !! (length acc + 1)) n x) + (ms !! length acc) * (bh (length acc) (xsf !! (length acc - 1)) (xsf !! length acc) (xsf !! (length acc + 1)) n x) : acc) [] ms) where
-    xsf  = 0 : xs ++ [0] -- for safety; two zeroes not actually used
+genPoly xs ys = (\x -> sum $ foldl (\acc y -> (ys !! length acc) * (ah' (length acc) n xs x) + (ms !! length acc) * (bh' (length acc) n xs x) : acc) [] ms) where
     n    = length ys
     eqns = genEqns xs ys
     ms   = toList $ solvetri (fst eqns) (snd eqns)
+
+{--
+genPolyDebug xs ys = (xs, ys, n, eqns, ms) where
+    n    = length ys
+    eqns = genEqns xs ys
+    ms   = toList $ solvetri (fst eqns) (snd eqns)
+
+genPolyDebug2 xs ys x = (fd, sum fd) where
+    n    = length ys
+    eqns = genEqns xs ys
+    ms   = toList $ solvetri (fst eqns) (snd eqns)
+    fd   = foldl (\acc y -> (ys !! length acc) * (ah' (length acc) n xs x) + (ms !! length acc) * (bh' (length acc) n xs x) : acc) [] ms
+--}
 
 -- runge specific (serves as an example I guess?)
 runge :: (RealFloat a) => a -> a
