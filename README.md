@@ -16,4 +16,8 @@ This repository, as of 2016-03-12, contains implementations for the following co
 
 ### Solutions for Linear Equation Systems
 (using `Data.Matrix` support from https://hackage.haskell.org/package/matrix-0.3.4.4)
-* Tridiagonal Matrix
+* Tridiagonal Matrix (Using Thomas's Algorithm)
+* Diagonally Dominant Matrix (Using Jacobi's Iterative Algorithm)
+
+### Numerical Integration
+* Adaptive Quadrature
