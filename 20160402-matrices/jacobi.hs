@@ -3,7 +3,7 @@
 import Data.Matrix
 
 -- |Jacobi Iterative Method for solving Linear Equation System Ax=b
-jacobisolve :: (RealFloat a, Enum a) => Matrix a                      -- ^ A square marix with **nonzero** diagonals
+jacobisolve :: (RealFloat a, Enum a) => Matrix a                      -- ^ A square matrix with **nonzero** diagonals
                                      -> Matrix a                      -- ^ b column vector, matrix form
                                      -> Int                           -- ^ number of iterations applied
                                      -> Matrix a                      -- ^ solution x
