@@ -13,7 +13,7 @@ jacobisolve a b n = jacobisolve_int j (zero (nrows a) 1) dib n where
     dib = multStd2 di b
 
 diludecomp :: (RealFloat a, Enum a) => Matrix a                       -- ^ A square matrix with **nonzero** diagonals
-                                    -> (Matrix a, Matrix a, Matrix a) -- ^ (D-1, L, U) matrices
+                                    -> (Matrix a, Matrix a, Matrix a) -- ^ (D^-1, -L, -U) matrices
 diludecomp m = (di, l, u) where
     n  = nrows m
     di = matrix n n (\(x, y) -> if x == y then 1 / (m ! (x, x)) else 0)
