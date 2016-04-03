@@ -6,7 +6,7 @@ Sources for Numerical Analysis course homework solutions, Spring 2016, PKUPhy.
 **License** MIT License.
 
 ## Contents
-This repository, as of 2016-03-12, contains implementations for the following contents:
+This repository, as of 2016-04-04, contains implementations for the following contents:
 
 ### Function Extrapolation (Polynomials)
 * Newton's Polynomial
@@ -17,7 +17,11 @@ This repository, as of 2016-03-12, contains implementations for the following co
 ### Solutions for Linear Equation Systems
 (using `Data.Matrix` support from https://hackage.haskell.org/package/matrix-0.3.4.4)
 * Tridiagonal Matrix (Using Thomas's Algorithm)
-* Diagonally Dominant Matrix (Using Jacobi's Iterative Algorithm)
+* Diagonally Dominant Matrix (Using Jacobi's Iterative Algorithm, Gauss-Seidel Iterative Algorithm)
+
+### Numerical Linear Algebra
+(using `Data.Matrix` support from https://hackage.haskell.org/package/matrix-0.3.4.4)
+* Triangular Matrix Inversion using Forward Subsitution
 
 ### Numerical Integration
 * Adaptive Quadrature
