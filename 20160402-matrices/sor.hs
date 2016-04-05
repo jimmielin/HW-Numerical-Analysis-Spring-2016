@@ -17,7 +17,7 @@ srsolve :: (RealFloat a, Enum a) => Matrix a                      -- ^ A square 
 srsolve a b n w = srsolve_int lw (zero (nrows a) 1) wdlwib n where
     (d, l, u) = dludecomp a
     dlwi   = invl $ (-) d $ fmap (*w) l
-    lw     = multStd2 dlwi $ (+) (fmap (*(1 - w)) d) (fmap (\x -> w * x) u)
+    lw     = multStd2 dlwi $ (+) (fmap (*(1 - w)) d) (fmap (*w) u)
     wdlwib = multStd2 (fmap (*w) dlwi) b
 
 dludecomp :: (RealFloat a, Enum a) => Matrix a                       -- ^ A square matrix with **nonzero** diagonals
