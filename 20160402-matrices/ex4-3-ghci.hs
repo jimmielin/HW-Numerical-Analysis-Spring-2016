@@ -12,4 +12,5 @@ putStr $ foldl (\acc x -> acc ++ ['\n'] ++ show (exact $ x/n)) "" [1..(n-1)]
 
 putStr $ foldl (\acc x -> acc ++ ['\n'] ++ show x) "" $ toList $ gssolve matrixa matrixb 10000
 
-putStr $ foldl (\acc x -> acc ++ ['\n'] ++ show (maximum $ toList $ (-) matrixb $ multStd2 matrixa (srsolve matrixa matrixb 1000 (x/100)))) "" [1..100]
+-- try to find best SOR
+putStr $ foldl (\acc x -> acc ++ ['\n'] ++ show (maximum $ toList $ (-) matrixb $ multStd2 matrixa (srsolve matrixa matrixb 100 (x/100)))) "" [1..100]
