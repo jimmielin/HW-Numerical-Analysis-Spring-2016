@@ -9,3 +9,7 @@ let matrixb = matrix (n - 1) 1 (\(r, _) -> if r /= n - 1 then a * h * h else a *
 let exact :: Double -> Double
 exact x = (1 - a) * (1 - exp((-1) * x / epsilon)) / (1 - exp((-1)/epsilon)) + a * x
 putStr $ foldl (\acc x -> acc ++ ['\n'] ++ show (exact $ x/n)) "" [1..(n-1)]
+
+putStr $ foldl (\acc x -> acc ++ ['\n'] ++ show x) "" $ toList $ gssolve matrixa matrixb 10000
+
+putStr $ foldl (\acc x -> acc ++ ['\n'] ++ show (maximum $ toList $ (-) matrixb $ multStd2 matrixa (srsolve matrixa matrixb 1000 (x/100)))) "" [1..100]
