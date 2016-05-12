@@ -25,9 +25,9 @@ dludecomp :: (RealFloat a, Enum a) => Matrix a                       -- ^ A squa
 {-# INLINE dludecomp #-}
 dludecomp m = (d, l, u) where
     n  = nrows m
-    d = matrix n n  (\(x, y) -> if x == y then m ! (x, x) else 0)
-    l  = matrix n n (\(x, y) -> if x > y then m ! (x, y) * (-1) else 0)
-    u  = matrix n n (\(x, y) -> if x < y then m ! (x, y) * (-1) else 0)
+    d  = matrix n n (\(x, y) -> if x == y then m ! (x, x) else 0)
+    l  = matrix n n (\(x, y) -> if x > y  then m ! (x, y) * (-1) else 0)
+    u  = matrix n n (\(x, y) -> if x < y  then m ! (x, y) * (-1) else 0)
 
 srsolve_int :: (RealFloat a, Enum a) => Matrix a                  -- ^ SOR Iterative Matrix L_w = (D - wL)^(-1) * [(1 - w)D + wU]
                                      -> Matrix a                  -- ^ x_i row vector (matrix form) for solution estimation
