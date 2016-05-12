@@ -6,7 +6,7 @@ Sources for Numerical Analysis course homework solutions, Spring 2016, PKUPhy.
 **License** MIT License.
 
 ## Contents
-This repository, as of 2016-04-04, contains implementations for the following contents:
+This repository, as of 2016-05-11, contains implementations for the following contents:
 
 ### Function Extrapolation (Polynomials)
 * Newton's Polynomial
@@ -22,6 +22,10 @@ This repository, as of 2016-04-04, contains implementations for the following co
 ### Numerical Linear Algebra
 (using `Data.Matrix` support from https://hackage.haskell.org/package/matrix-0.3.4.4)
 * Triangular Matrix Inversion using Forward Subsitution
+* Eigenvector Computation using Inverse Iteration Method (Requires given Eigenvalue approximation)
 
 ### Numerical Integration
 * Adaptive Quadrature
+
+### Solutions for Nonlinear Equations (and Systems)
+* Newton's Approximation (One function)
